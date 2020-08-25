@@ -18,7 +18,7 @@ require('./config/database');
  * 
  * Settings
  */
-app.set('port', process.env.PORT || 4000);      // using a port assigned for OS; else 3000 port
+app.set('port', process.env.PORT || 4005);      // using a port assigned for OS; else 4005 port
 /**
  * Globals  Variables
  */
