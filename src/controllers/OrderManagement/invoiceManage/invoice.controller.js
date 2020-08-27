@@ -8,15 +8,17 @@ const postGenerateInvoice = async (req, res) => {
     let invoice_no = await invoiceModel.registerInvoice(order_no, id_user);
     const listProducts = await invoiceModel.getListProducts(invoice_no);
     const dataInvoice = await invoiceModel.getInvoiceData(invoice_no);
+    var totalShoopingCart = await invoiceModel.getTotalShoppingCart(invoice_no);
+    var discount = (totalShoopingCart*dataInvoice.discount)/100;
     console.log(dataInvoice, listProducts, invoice_no);
     let pdfInvoice = `<tbody>`;
     for (let index = 0; index < listProducts.length; index++) {
         pdfInvoice = await pdfInvoice + `
         <tr>
-            <td style="border: 1px solid black; border-collapse: collapse; text-align: center;">${listProducts[index].description}</td>
-            <td style="border: 1px solid black; border-collapse: collapse; text-align: center;">${listProducts[index].description_category}</td>
+            <td style="border: 1px solid black; border-collapse: collapse; text-align: center;">${listProducts[index].name}</td>
             <td style="border: 1px solid black; border-collapse: collapse; text-align: center;">${listProducts[index].price}</td>
             <td style="border: 1px solid black; border-collapse: collapse; text-align: center;">${listProducts[index].quantity}</td>
+            <td style="border: 1px solid black; border-collapse: collapse; text-align: center;">${(listProducts[index].price)*(listProducts[index].quantity)}</td>
         </tr>`;
     }
     pdfInvoice = pdfInvoice + `</tbody>`;
@@ -25,33 +27,40 @@ const postGenerateInvoice = async (req, res) => {
     <html>
     <head>
         <meta charset="utf-8">
-        <title>Factura #${invoice_no}</title>
+        <title>Factura N° ${invoice_no}</title>
     </head>
     <body>
         <div id="pageHeader">
             <h5 style="text-align: center;"><b>Factura Muebles Mara</b></h5>
         </div>
-        <h2 style="text-align: center;">Factura #${invoice_no}</h2>
+        <h3 style="text-align: center;">NIT :             10045672355</h3>
+        <h3 style="text-align: center;">FACTURA N° :      ${invoice_no}</h3>
+        <h3 style="text-align: center;">AUTORIZACION N° : ${dataInvoice.nro_authorization}</h3>
         <div style="padding: 5%;">
             <p>
                 <b>Cliente: </b> ${dataInvoice.username}<br>
-                <b>Razon Social: </b> ${dataInvoice.business_name}<br>
                 <b>NIT: </b> ${dataInvoice.nit_ci}<br>
-                <b>Fecha de Compra: </b> ${dataInvoice.date}<br>
-                <b>Total costo: </b> ${dataInvoice.total_cost} <br>
+                <b>Razon Social: </b> ${dataInvoice.business_name}<br>
+                <b>Fecha de Emision: </b> ${dataInvoice.date}<br>
+                <br>
                 <br>
             </p>
-            <table style="border: 1px solid black; border-collapse: collapse; width: 100%;">
+            <table style="width: 100%;">
                 <thead>
                     <tr>
-                        <th style="border: 1px solid black; border-collapse: collapse;">Mueble</th>
-                        <th style="border: 1px solid black; border-collapse: collapse;">Categoria</th>
+                        <th style="border: 1px solid black; border-collapse: collapse;">Concepto</th>
                         <th style="border: 1px solid black; border-collapse: collapse;">Precio</th>
                         <th style="border: 1px solid black; border-collapse: collapse;">Cantidad</th>
+                        <th style="border: 1px solid black; border-collapse: collapse;">Subtotal</th>
                     </tr>
                 </thead>
                 ${pdfInvoice}
             </table>
+            <b>TOTAL: </b> ${totalShoopingCart}<br>
+            <b>DESCUENTO: </b> ${discount}<br>
+            <b>TOTAL PRODUCTOS: </b> ${totalShoopingCart-discount}<br>
+            <b>TOTAL DELIVERY: </b> ${dataInvoice.price_delivery_area}<br>
+            <b>TOTAL: </b> ${totalShoopingCart-discount+parseInt(dataInvoice.price_delivery_area)}<br>
             <div id="pageFooter" style="text-align: center;">
                 <b>Muebles Mara E-commerce MarWood</b>
             </div>

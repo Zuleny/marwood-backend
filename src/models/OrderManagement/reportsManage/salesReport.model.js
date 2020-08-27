@@ -13,8 +13,12 @@ module.exports = {
 
     async getListReportSaleDate(){
         try {
-            const response = await pool.query(`SELECT date, count(DISTINCT nro_invoice) FROM invoice GROUP by date order by date limit 5`);
-            return response.rows;
+            var response = await pool.query(`SELECT date, count(DISTINCT nro_invoice) FROM invoice GROUP by date order by date limit 5`);
+            response = response.rows;
+            response.forEach(element => {
+                element.date = element.date.toLocaleDateString();       
+            });
+            return response;
         } catch (error) {
             console.log("Error in sales report", error);
             return null;

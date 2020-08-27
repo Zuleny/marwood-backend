@@ -29,8 +29,7 @@ module.exports = {
                                             order by o."date" desc; `);
             response = response.rows;
             response.forEach(element => {
-                element.date = element.date.toLocaleDateString();
-                
+                element.date = element.date.toLocaleDateString();       
             });
             return response;
         } catch (e) {
